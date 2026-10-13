@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Anthony Summers Golf | Mental Game Scorecard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            golf: {
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    body {
+      touch-action: manipulation;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-full text-slate-100 flex flex-col antialiased bg-slate-950 max-w-md mx-auto relative shadow-2xl overflow-hidden border-x border-slate-800">
+
+  <!-- HEADER BRANDING -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0 z-20">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-golf-500 flex items-center justify-center shadow-lg shadow-brand-900/40">
+        <i data-lucide="target" class="w-6 h-6 text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-xs font-black tracking-widest text-brand-400 uppercase leading-none">Anthony Summers Golf</h1>
+        <p class="text-sm font-bold text-white tracking-tight mt-0.5">Mental Scorecard</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-1">
+      <button id="btn-guide" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition active:scale-95" title="Scoring Guide">
+        <i data-lucide="help-circle" class="w-5 h-5"></i>
+      </button>
+      <button id="btn-dashboard" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition active:scale-95" title="Round Summary">
+        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+      </button>
+      <button id="btn-menu" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition active:scale-95" title="Settings / Export">
+        <i data-lucide="more-vertical" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- HOLE NAVIGATOR BAR -->
+  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-2 py-2 flex items-center space-x-1.5 overflow-x-auto no-scrollbar shrink-0 z-10">
+    <div id="hole-nav-container" class="flex space-x-1.5 min-w-full px-1"></div>
+  </nav>
+
+  <!-- MAIN SCROLLABLE CONTENT AREA -->
+  <main class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4 pb-24">
+
+    <!-- ACTIVE HOLE BANNER -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-4 border border-slate-800 flex items-center justify-between shadow-lg">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex flex-col items-center justify-center">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hole</span>
+          <span id="current-hole-num" class="text-xl font-black text-white leading-none">1</span>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-slate-400" id="hole-shot-count-label">0 Shots Logged</div>
+          <div class="text-lg font-bold text-emerald-400 flex items-center gap-1">
+            <span id="hole-total-score">- / -</span> <span class="text-xs font-normal text-slate-400">pts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-add-shot" class="px-3 py-2 bg-gradient-to-r from-golf-600 to-golf-500 hover:from-golf-500 hover:to-golf-600 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1.5 active:scale-95 transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Shot
+        </button>
+      </div>
+    </div>
+
+    <!-- SHOTS CONTAINER -->
+    <div id="shots-container" class="space-y-4">
+      <!-- Dynamic Blank Shot Cards rendered here -->
+    </div>
+
+    <!-- EMPTY SHOTS STATE -->
+    <div id="empty-shots-state" class="hidden text-center py-12 px-4 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
+      <div class="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto mb-3 text-slate-500">
+        <i data-lucide="flag" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-sm font-bold text-slate-300">No shots logged for this hole</h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Tap "Add Shot" above to begin tracking your mental process for Hole <span class="active-hole-txt">1</span>.</p>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM FIXED NAVIGATION / SUMMARY STRIP -->
+  <div class="absolute bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 p-3 px-4 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-3">
+      <div>
+        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Round Total</div>
+        <div class="text-xl font-black text-white flex items-baseline gap-1">
+          <span id="nav-round-score">-</span>
+          <span class="text-xs text-slate-500 font-normal" id="nav-round-max">/ - pts</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button id="btn-prev-hole" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white active:scale-95 transition">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+      <button id="btn-next-hole" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-brand-900/30 active:scale-95 transition">
+        Next Hole <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: SCORING GUIDE / PILLARS REFERENCE -->
+  <div id="modal-guide" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-brand-400"></i>
+          <h2 class="text-base font-bold text-white">Scoring Reference Guide</h2>
+        </div>
+        <button id="close-guide" class="p-1 rounded-lg text-slate-400 hover:text-white bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3 bg-slate-850 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-black text-brand-400 text-sm">Pillar 1: Plan</span>
+            <span class="px-2 py-0.5 rounded-full bg-brand-900/80 text-brand-300 font-bold">Max /3</span>
+          </div>
+          <ul class="space-y-1.5 text-slate-300 pl-2">
+            <li class="flex items-start gap-1.5"><span class="text-brand-400 font-bold">•</span> <span><strong>Info Gathering (/1):</strong> Assess wind, lie, hazard zones &amp; situation.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-brand-400 font-bold">•</span> <span><strong>Decision (/2):</strong> Make a clear choice based on present skill.</span></li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-850 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-black text-emerald-400 text-sm">Pillar 2: Commit</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-bold">Max /4</span>
+          </div>
+          <ul class="space-y-1.5 text-slate-300 pl-2">
+            <li class="flex items-start gap-1.5"><span class="text-emerald-400 font-bold">•</span> <span><strong>See Visuals (/1):</strong> Crystal clear mental flight image.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-400 font-bold">•</span> <span><strong>Feel Shot (/1):</strong> Immerse in swing tempo &amp; sensation.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-emerald-400 font-bold">•</span> <span><strong>Full Commitment (/2):</strong> 100% conviction over ball.</span></li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-850 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-black text-purple-400 text-sm">Pillar 3: Execute &amp; Release</span>
+            <span class="px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 font-bold">Max /3</span>
+          </div>
+          <ul class="space-y-1.5 text-slate-300 pl-2">
+            <li class="flex items-start gap-1.5"><span class="text-purple-400 font-bold">•</span> <span><strong>Free Execution (/1):</strong> Swing freely at target.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-purple-400 font-bold">•</span> <span><strong>Post-Shot Release (/2):</strong> Gain confidence or learn &amp; leave in past.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DASHBOARD SUMMARY -->
+  <div id="modal-dashboard" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="pie-chart" class="w-5 h-5 text-golf-500"></i>
+          <h2 class="text-base font-bold text-white">Round Summary Dashboard</h2>
+        </div>
+        <button id="close-dashboard" class="p-1 rounded-lg text-slate-400 hover:text-white bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- OVERALL SCORE BANNER -->
+      <div class="bg-slate-850 p-4 rounded-2xl border border-slate-800 text-center space-y-1">
+        <div class="text-xs uppercase font-bold tracking-wider text-slate-400">Total Mental Game Score</div>
+        <div class="text-3xl font-black text-white" id="dash-overall-score">- / -</div>
+        <div class="text-xs text-emerald-400 font-semibold" id="dash-pct-score">0% Mental Execution</div>
+      </div>
+
+      <!-- PILLAR BREAKDOWN BARS -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Pillar Breakdown</h3>
+        
+        <!-- Plan -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs font-semibold">
+            <span class="text-brand-400">Plan (/3)</span>
+            <span id="dash-plan-val" class="text-slate-300">0 / 0 (0%)</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="dash-plan-bar" class="h-full bg-brand-500 transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Commit -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs font-semibold">
+            <span class="text-emerald-400">Commit (/4)</span>
+            <span id="dash-commit-val" class="text-slate-300">0 / 0 (0%)</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="dash-commit-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Execute -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs font-semibold">
+            <span class="text-purple-400">Execute &amp; Release (/3)</span>
+            <span id="dash-execute-val" class="text-slate-300">0 / 0 (0%)</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="dash-execute-bar" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOLE MATRIX TABLE -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Hole-By-Hole Breakdown</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-850">
+          <table class="w-full text-xs text-center">
+            <thead class="bg-slate-800 text-slate-400 font-bold uppercase text-[10px]">
+              <tr>
+                <th class="py-2 px-2 text-left">Hole</th>
+                <th class="py-2 px-1">Shots</th>
+                <th class="py-2 px-1">Plan</th>
+                <th class="py-2 px-1">Commit</th>
+                <th class="py-2 px-1">Exec</th>
+                <th class="py-2 px-2 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="dash-matrix-body" class="divide-y divide-slate-800/60 text-slate-300 font-medium">
+              <!-- JS Injected rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: SETTINGS & EXPORT -->
+  <div id="modal-menu" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h2 class="text-base font-bold text-white">Round Options</h2>
+        <button id="close-menu" class="p-1 rounded-lg text-slate-400 hover:text-white bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <button id="btn-export-csv" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-750 text-slate-200 font-semibold rounded-xl flex items-center justify-between text-xs transition">
+          <span class="flex items-center gap-2"><i data-lucide="download" class="w-4 h-4 text-brand-400"></i> Export Round Data (CSV)</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+        </button>
+
+        <button id="btn-export-json" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-750 text-slate-200 font-semibold rounded-xl flex items-center justify-between text-xs transition">
+          <span class="flex items-center gap-2"><i data-lucide="file-json" class="w-4 h-4 text-emerald-400"></i> Export Backup (JSON)</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+        </button>
+
+        <button id="btn-reset-round" class="w-full py-3 px-4 bg-rose-950/40 border border-rose-900/50 hover:bg-rose-900/60 text-rose-300 font-semibold rounded-xl flex items-center justify-between text-xs transition mt-4">
+          <span class="flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-400"></i> Start New Round (Clear All)</span>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'AS_GOLF_MENTAL_SCORECARD_V2';
+
+    // Default structure for 9 holes with completely BLANK shots (null values)
+    function createInitialRoundData() {
+      const holes = {};
+      for (let i = 1; i <= 9; i++) {
+        holes[i] = {
+          shots: [
+            { id: 101, plan: null, commit: null, execute: null },
+            { id: 102, plan: null, commit: null, execute: null }
+          ]
+        };
+      }
+      return {
+        id: 'ROUND_' + Date.now(),
+        date: new Date().toISOString(),
+        activeHole: 1,
+        holes: holes
+      };
+    }
+
+    const ScorecardStore = {
+      loadState() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) return JSON.parse(stored);
+        } catch (e) {
+          console.error('Failed to load local state', e);
+        }
+        const initial = createInitialRoundData();
+        this.saveState(initial);
+        return initial;
+      },
+
+      saveState(state) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.error('Failed to save state', e);
+        }
+      },
+
+      resetRound() {
+        const fresh = createInitialRoundData();
+        this.saveState(fresh);
+        return fresh;
+      }
+    };
+
+    // App State
+    let appState = ScorecardStore.loadState();
+
+    // DOM Elements
+    const elements = {
+      holeNavContainer: document.getElementById('hole-nav-container'),
+      currentHoleNum: document.getElementById('current-hole-num'),
+      holeTotalScore: document.getElementById('hole-total-score'),
+      holeShotCountLabel: document.getElementById('hole-shot-count-label'),
+      shotsContainer: document.getElementById('shots-container'),
+      emptyShotsState: document.getElementById('empty-shots-state'),
+      navRoundScore: document.getElementById('nav-round-score'),
+      navRoundMax: document.getElementById('nav-round-max'),
+      btnAddShot: document.getElementById('btn-add-shot'),
+      btnPrevHole: document.getElementById('btn-prev-hole'),
+      btnNextHole: document.getElementById('btn-next-hole'),
+      
+      // Modals
+      btnGuide: document.getElementById('btn-guide'),
+      closeGuide: document.getElementById('close-guide'),
+      modalGuide: document.getElementById('modal-guide'),
+
+      btnDashboard: document.getElementById('btn-dashboard'),
+      closeDashboard: document.getElementById('close-dashboard'),
+      modalDashboard: document.getElementById('modal-dashboard'),
+
+      btnMenu: document.getElementById('btn-menu'),
+      closeMenu: document.getElementById('close-menu'),
+      modalMenu: document.getElementById('modal-menu'),
+
+      btnResetRound: document.getElementById('btn-reset-round'),
+      btnExportCsv: document.getElementById('btn-export-csv'),
+      btnExportJson: document.getElementById('btn-export-json'),
+
+      // Dashboard stats
+      dashOverallScore: document.getElementById('dash-overall-score'),
+      dashPctScore: document.getElementById('dash-pct-score'),
+      dashPlanVal: document.getElementById('dash-plan-val'),
+      dashPlanBar: document.getElementById('dash-plan-bar'),
+      dashCommitVal: document.getElementById('dash-commit-val'),
+      dashCommitBar: document.getElementById('dash-commit-bar'),
+      dashExecuteVal: document.getElementById('dash-execute-val'),
+      dashExecuteBar: document.getElementById('dash-execute-bar'),
+      dashMatrixBody: document.getElementById('dash-matrix-body')
+    };
+
+    function calculateRoundTotals() {
+      let totalScore = 0;
+      let maxScore = 0;
+      let planScore = 0, planMax = 0;
+      let commitScore = 0, commitMax = 0;
+      let execScore = 0, execMax = 0;
+
+      Object.keys(appState.holes).forEach(hNum => {
+        const hole = appState.holes[hNum];
+        hole.shots.forEach(s => {
+          if (s.plan !== null) {
+            planScore += s.plan;
+            planMax += 3;
+            totalScore += s.plan;
+            maxScore += 3;
+          }
+          if (s.commit !== null) {
+            commitScore += s.commit;
+            commitMax += 4;
+            totalScore += s.commit;
+            maxScore += 4;
+          }
+          if (s.execute !== null) {
+            execScore += s.execute;
+            execMax += 3;
+            totalScore += s.execute;
+            maxScore += 3;
+          }
+        });
+      });
+
+      return {
+        totalScore, maxScore,
+        planScore, planMax,
+        commitScore, commitMax,
+        execScore, execMax,
+        pct: maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
+      };
+    }
+
+    function renderHoleNav() {
+      elements.holeNavContainer.innerHTML = '';
+      for (let i = 1; i <= 9; i++) {
+        const isActive = i === appState.activeHole;
+        const holeData = appState.holes[i];
+        const shotCount = holeData.shots.length;
+
+        const btn = document.createElement('button');
+        btn.className = `flex-1 min-w-[42px] py-2 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center border ${
+          isActive 
+            ? 'bg-brand-600 border-brand-400 text-white shadow-lg shadow-brand-900/50' 
+            : 'bg-slate-800/80 border-slate-700/60 text-slate-400 hover:bg-slate-750'
+        }`;
+        btn.innerHTML = `
+          <span>H${i}</span>
+          <span class="text-[9px] opacity-75 font-normal">${shotCount}s</span>
+        `;
+        btn.onclick = () => switchHole(i);
+        elements.holeNavContainer.appendChild(btn);
+      }
+    }
+
+    function renderHoleView() {
+      const hNum = appState.activeHole;
+      elements.currentHoleNum.textContent = hNum;
+      document.querySelectorAll('.active-hole-txt').forEach(el => el.textContent = hNum);
+
+      const holeData = appState.holes[hNum];
+      const shots = holeData.shots;
+
+      elements.holeShotCountLabel.textContent = `${shots.length} Shot${shots.length === 1 ? '' : 's'} Logged`;
+
+      // Hole Score Calculation (null-aware)
+      let holeScore = 0;
+      let holeMax = 0;
+      shots.forEach(s => {
+        if (s.plan !== null) { holeScore += s.plan; holeMax += 3; }
+        if (s.commit !== null) { holeScore += s.commit; holeMax += 4; }
+        if (s.execute !== null) { holeScore += s.execute; holeMax += 3; }
+      });
+
+      if (holeMax === 0) {
+        elements.holeTotalScore.textContent = `- / -`;
+      } else {
+        elements.holeTotalScore.textContent = `${holeScore} / ${holeMax}`;
+      }
+
+      elements.shotsContainer.innerHTML = '';
+
+      if (shots.length === 0) {
+        elements.emptyShotsState.classList.remove('hidden');
+      } else {
+        elements.emptyShotsState.classList.add('hidden');
+        shots.forEach((shot, index) => {
+          const card = createShotCardHTML(shot, index + 1);
+          elements.shotsContainer.appendChild(card);
+        });
+      }
+
+      // Update Bottom Footer Total
+      const roundTotals = calculateRoundTotals();
+      if (roundTotals.maxScore === 0) {
+        elements.navRoundScore.textContent = `-`;
+        elements.navRoundMax.textContent = `/ - pts`;
+      } else {
+        elements.navRoundScore.textContent = roundTotals.totalScore;
+        elements.navRoundMax.textContent = `/ ${roundTotals.maxScore} pts`;
+      }
+
+      lucide.createIcons();
+    }
+
+    function createShotCardHTML(shot, shotIndex) {
+      let shotScore = 0;
+      let shotMax = 0;
+      if (shot.plan !== null) { shotScore += shot.plan; shotMax += 3; }
+      if (shot.commit !== null) { shotScore += shot.commit; shotMax += 4; }
+      if (shot.execute !== null) { shotScore += shot.execute; shotMax += 3; }
+
+      const shotTotalDisplay = shotMax === 0 ? '- / 10 pts' : `${shotScore} / ${shotMax} pts`;
+
+      const card = document.createElement('div');
+      card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg relative";
+
+      card.innerHTML = `
+        <!-- Shot Header -->
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">${shotIndex}</span>
+            <span class="text-sm font-bold text-white">Shot ${shotIndex}</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-black px-2.5 py-1 rounded-lg ${shotMax > 0 && shotScore >= Math.round(shotMax * 0.8) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-800 text-slate-400'}">
+              ${shotTotalDisplay}
+            </span>
+            <button onclick="removeShot(${shot.id})" class="text-slate-500 hover:text-rose-400 p-1 rounded-lg transition" title="Delete Shot">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pillar 1: Plan (/3) -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-brand-400">Plan <span class="text-[10px] text-slate-500 font-normal">(Max 3)</span></span>
+            <span class="font-bold ${shot.plan === null ? 'text-slate-600' : 'text-slate-300'}">${shot.plan === null ? '-' : shot.plan + '/3'}</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            ${[0, 1, 2, 3].map(v => `
+              <button onclick="updateScore(${shot.id}, 'plan', ${v})" class="py-2 rounded-xl text-xs font-bold border transition active:scale-95 ${
+                shot.plan === v 
+                  ? 'bg-brand-600 border-brand-400 text-white shadow-md' 
+                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:bg-slate-750'
+              }">${v}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Pillar 2: Commit (/4) -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-emerald-400">Commit <span class="text-[10px] text-slate-500 font-normal">(Max 4)</span></span>
+            <span class="font-bold ${shot.commit === null ? 'text-slate-600' : 'text-slate-300'}">${shot.commit === null ? '-' : shot.commit + '/4'}</span>
+          </div>
+          <div class="grid grid-cols-5 gap-1.5">
+            ${[0, 1, 2, 3, 4].map(v => `
+              <button onclick="updateScore(${shot.id}, 'commit', ${v})" class="py-2 rounded-xl text-xs font-bold border transition active:scale-95 ${
+                shot.commit === v 
+                  ? 'bg-emerald-600 border-emerald-400 text-white shadow-md' 
+                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:bg-slate-750'
+              }">${v}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Pillar 3: Execute & Release (/3) -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-purple-400">Execute &amp; Release <span class="text-[10px] text-slate-500 font-normal">(Max 3)</span></span>
+            <span class="font-bold ${shot.execute === null ? 'text-slate-600' : 'text-slate-300'}">${shot.execute === null ? '-' : shot.execute + '/3'}</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            ${[0, 1, 2, 3].map(v => `
+              <button onclick="updateScore(${shot.id}, 'execute', ${v})" class="py-2 rounded-xl text-xs font-bold border transition active:scale-95 ${
+                shot.execute === v 
+                  ? 'bg-purple-600 border-purple-400 text-white shadow-md' 
+                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:bg-slate-750'
+              }">${v}</button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Action Handlers
+    function switchHole(hNum) {
+      if (hNum < 1 || hNum > 9) return;
+      appState.activeHole = hNum;
+      ScorecardStore.saveState(appState);
+      renderHoleNav();
+      renderHoleView();
+    }
+
+    function updateScore(shotId, pillar, val) {
+      const shots = appState.holes[appState.activeHole].shots;
+      const target = shots.find(s => s.id === shotId);
+      if (target) {
+        // Toggle selection off if already selected
+        target[pillar] = target[pillar] === val ? null : val;
+        ScorecardStore.saveState(appState);
+        renderHoleView();
+      }
+    }
+
+    function addShot() {
+      const shots = appState.holes[appState.activeHole].shots;
+      if (shots.length >= 6) {
+        alert("Maximum 6 shots per hole reached.");
+        return;
+      }
+      const newId = Date.now();
+      // Start with blank null values
+      shots.push({ id: newId, plan: null, commit: null, execute: null });
+      ScorecardStore.saveState(appState);
+      renderHoleNav();
+      renderHoleView();
+    }
+
+    function removeShot(shotId) {
+      const shots = appState.holes[appState.activeHole].shots;
+      appState.holes[appState.activeHole].shots = shots.filter(s => s.id !== shotId);
+      ScorecardStore.saveState(appState);
+      renderHoleNav();
+      renderHoleView();
+    }
+
+    function updateDashboard() {
+      const totals = calculateRoundTotals();
+      elements.dashOverallScore.textContent = `${totals.totalScore} / ${totals.maxScore}`;
+      elements.dashPctScore.textContent = `${totals.pct}% Mental Execution Rating`;
+
+      const planPct = totals.planMax > 0 ? Math.round((totals.planScore / totals.planMax) * 100) : 0;
+      const commitPct = totals.commitMax > 0 ? Math.round((totals.commitScore / totals.commitMax) * 100) : 0;
+      const execPct = totals.execMax > 0 ? Math.round((totals.execScore / totals.execMax) * 100) : 0;
+
+      elements.dashPlanVal.textContent = `${totals.planScore} / ${totals.planMax} (${planPct}%)`;
+      elements.dashPlanBar.style.width = `${planPct}%`;
+
+      elements.dashCommitVal.textContent = `${totals.commitScore} / ${totals.commitMax} (${commitPct}%)`;
+      elements.dashCommitBar.style.width = `${commitPct}%`;
+
+      elements.dashExecuteVal.textContent = `${totals.execScore} / ${totals.execMax} (${execPct}%)`;
+      elements.dashExecuteBar.style.width = `${execPct}%`;
+
+      // Matrix Table
+      elements.dashMatrixBody.innerHTML = '';
+      for (let i = 1; i <= 9; i++) {
+        const shots = appState.holes[i].shots;
+        let p = 0, c = 0, e = 0, tot = 0, filledShots = 0;
+        shots.forEach(s => {
+          if (s.plan !== null) p += s.plan;
+          if (s.commit !== null) c += s.commit;
+          if (s.execute !== null) e += s.execute;
+          if (s.plan !== null || s.commit !== null || s.execute !== null) {
+            filledShots++;
+          }
+          tot += ((s.plan || 0) + (s.commit || 0) + (s.execute || 0));
+        });
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="py-2 px-2 text-left font-bold text-white">Hole ${i}</td>
+          <td class="py-2 px-1">${shots.length}</td>
+          <td class="py-2 px-1 text-brand-400">${p}</td>
+          <td class="py-2 px-1 text-emerald-400">${c}</td>
+          <td class="py-2 px-1 text-purple-400">${e}</td>
+          <td class="py-2 px-2 text-right font-bold text-white">${filledShots === 0 ? '-' : tot}</td>
+        `;
+        elements.dashMatrixBody.appendChild(row);
+      }
+    }
+
+    // Modal Helpers
+    function toggleModal(modal, show) {
+      if (show) {
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        modal.firstElementChild.classList.remove('translate-y-full');
+      } else {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.firstElementChild.classList.add('translate-y-full');
+      }
+    }
+
+    // Export Handlers
+    function exportCSV() {
+      let csv = "Hole,Shot,Plan,Commit,Execute,Total\n";
+      for (let h = 1; h <= 9; h++) {
+        appState.holes[h].shots.forEach((s, idx) => {
+          const planTxt = s.plan === null ? "" : s.plan;
+          const commitTxt = s.commit === null ? "" : s.commit;
+          const execTxt = s.execute === null ? "" : s.execute;
+          const totTxt = (s.plan === null && s.commit === null && s.execute === null) ? "" : ((s.plan || 0) + (s.commit || 0) + (s.execute || 0));
+          csv += `${h},${idx + 1},${planTxt},${commitTxt},${execTxt},${totTxt}\n`;
+        });
+      }
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `AnthonySummersGolf_MentalScorecard_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `AnthonySummersGolf_MentalScorecard_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    // Event Listeners
+    function initEventListeners() {
+      elements.btnAddShot.onclick = addShot;
+
+      elements.btnPrevHole.onclick = () => switchHole(appState.activeHole - 1);
+      elements.btnNextHole.onclick = () => switchHole(appState.activeHole + 1);
+
+      elements.btnGuide.onclick = () => toggleModal(elements.modalGuide, true);
+      elements.closeGuide.onclick = () => toggleModal(elements.modalGuide, false);
+
+      elements.btnDashboard.onclick = () => {
+        updateDashboard();
+        toggleModal(elements.modalDashboard, true);
+      };
+      elements.closeDashboard.onclick = () => toggleModal(elements.modalDashboard, false);
+
+      elements.btnMenu.onclick = () => toggleModal(elements.modalMenu, true);
+      elements.closeMenu.onclick = () => toggleModal(elements.modalMenu, false);
+
+      elements.btnExportCsv.onclick = exportCSV;
+      elements.btnExportJson.onclick = exportJSON;
+
+      elements.btnResetRound.onclick = () => {
+        if (confirm("Are you sure you want to start a new round? All current shot scores will be reset to blank.")) {
+          appState = ScorecardStore.resetRound();
+          renderHoleNav();
+          renderHoleView();
+          toggleModal(elements.modalMenu, false);
+        }
+      };
+    }
+
+    window.onload = function() {
+      lucide.createIcons();
+      initEventListeners();
+      renderHoleNav();
+      renderHoleView();
+    };
+  </script>
+</body>
+</html>
